@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Bloom Monitoring System</title>
+  <style>
+  body { 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; 
+    background: #0f172a;
+    margin: 0;
+    min-height: 100vh;
+    color: #e2e8f0;
+  }
+  
+  header { 
+    background: #1e293b; 
+    color: #fff; 
+    padding: 20px 40px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid #334155;
+  }
+  
+  .container { 
+    padding: 30px; 
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 30px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .card {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border: 1px solid #334155;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  h1, h2, h3 {
+    margin-top: 0;
+    color: #f8fafc;
+    font-weight: 600;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #334155;
+  }
+
+  /* Hero Section - Live Stream */
+  .hero-section {
+    background: #0f172a;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .hero-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Stream Container - Hero Style */
+  #stream-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative; 
+    border-radius: 12px;
+    overflow: hidden; 
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+    background: #000;
+    min-height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Video Stream */
+  #stream {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 600px;
+    object-fit: contain;
+  }
+
+  /* Overlay Boxes */
+  #overlay-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 180px; 
+    height: 180px;
+    border: 3px solid #fbbf24;
+    transform: translate(-50%, -50%); 
+    pointer-events: none; 
+    z-index: 10;
+    box-sizing: border-box;
+  }
+
+  #inner-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150px; 
+    height: 150px;
+    border: 3px solid #ef4444;
+    transform: translate(-50%, -50%); 
+    pointer-events: none; 
+    z-index: 11; 
+    box-sizing: border-box;
+  }
+
+  /* Stream Controls */
+  .stream-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  /* Buttons */
+  button { 
+    padding: 14px 28px; 
+    border: none; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .primary { 
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); 
+    color: white; 
+  }
+  
+  .primary:hover { 
+    background: linear-gradient(135deg, #2563eb, #1e40af); 
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+  }
+  
+  .danger { 
+    background: linear-gradient(135deg, #ef4444, #dc2626); 
+    color: white; 
+  }
+  
+  .danger:hover { 
+    background: linear-gradient(135deg, #dc2626, #b91c1c); 
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(220, 38, 38, 0.3);
+  }
+  
+  .success { 
+    background: linear-gradient(135deg, #10b981, #059669); 
+    color: white; 
+  }
+  
+  .success:hover { 
+    background: linear-gradient(135deg, #059669, #047857); 
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(5, 150, 105, 0.3);
+  }
+
+  .secondary {
+    background: #334155;
+    color: #e2e8f0;
+  }
+
+  .secondary:hover {
+    background: #475569;
+    transform: translateY(-2px);
+  }
+
+  /* Battery */
+  .battery-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 12px;
+    border: 1px solid #334155;
+  }
+  
+  #batteryBox {
+    width: 140px;
+    height: 60px;
+    border: 3px solid #475569;
+    border-radius: 12px;
+    position: relative;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  
+  #batteryLevel {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #fbbf24 50%, #ef4444 100%);
+    width: 75%;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+  
+  #batteryCap {
+    width: 15px;
+    height: 30px;
+    background: #475569;
+    position: absolute;
+    top: 13px;
+    right: -18px;
+    border-radius: 4px;
+  }
+
+  /* Status Indicators */
+  .status-running { 
+    color: #10b981; 
+    font-weight: 600; 
+    background: rgba(16, 185, 129, 0.15);
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  
+  .status-stopped { 
+    color: #ef4444; 
+    font-weight: 600; 
+    background: rgba(239, 68, 68, 0.15);
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  /* Storage Panel */
+  .storage-panel {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+  }
+  
+  .storage-bar-container {
+    height: 16px;
+    background: #334155;
+    border-radius: 8px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+  
+  .storage-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    width: 50%;
+    border-radius: 8px;
+    transition: width 0.5s ease;
+  }
+
+  /* Calendar */
+  .calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .calendar-day {
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #334155;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
+  }
+  
+  .calendar-day:hover {
+    background: #475569;
+    transform: scale(1.05);
+  }
+  
+  .calendar-day.marked {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  .calendar-header {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #cbd5e1;
+    font-size: 18px;
+  }
+
+  .calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  /* Pollination Panel */
+  .pollination-panel {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+  }
+  
+  .pollination-count {
+    font-size: 42px;
+    font-weight: 700;
+    color: #10b981;
+    text-align: center;
+    margin: 15px 0;
+    text-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+  }
+  
+  .pollination-progress {
+    height: 10px;
+    background: #334155;
+    border-radius: 5px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+  
+  .pollination-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #3b82f6);
+    width: 0%;
+    transition: width 0.8s ease;
+    border-radius: 5px;
+  }
+
+  /* Dashboard Grid */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+  }
+
+  /* Stats */
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 10px 0;
+  }
+  
+  .stat-label {
+    font-size: 15px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  /* Recording Indicator */
+  .recording-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+  }
+
+  .recording-dot {
+    width: 12px;
+    height: 12px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+
+  /* Media Controls */
+  .media-controls {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .container {
+      grid-template-columns: 1fr;
+    }
+    
+    #stream-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .hero-section {
+      align-items: center;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      padding: 20px;
+    }
+    
+    #stream-container {
+      max-width: 100%;
+      min-height: 400px;
+    }
+    
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .stream-controls, .media-controls {
+      flex-direction: column;
+    }
+    
+    button {
+      width: 100%;
+      max-width: 300px;
+    }
+    
+    .hero-header {
+      flex-direction: column;
+      gap: 15px;
+    }
+  }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .metric-item {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    text-align: center;
+  }
+
+  /* Image Preview */
+  #imagePreview {
+    width: 100%;
+    height: 200px;
+    background: #0f172a;
+    border-radius: 12px;
+    margin-top: 15px;
+    border: 2px dashed #475569;
+    display: none;
+    overflow: hidden;
+  }
+
+  #imagePreview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Notification */
+  #notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 18px 24px;
+    background: #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    border-left: 5px solid #3b82f6;
+    z-index: 1000;
+    display: none;
+    max-width: 400px;
+    border: 1px solid #334155;
+  }
+
+  .close-notification {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+  }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Smart Bloom Monitoring System</h1>
+</header>
+
+<div class="container">
+  <div class="main-content">
+
+    <div class="hero-section">
+      <div class="hero-header">
+        <div>
+          <h2>Live Feed Monitoring</h2>
+          <div class="recording-indicator">
+            <div class="recording-dot" id="recordingDot" style="display: none;"></div>
+            <div>Status: <span id="recStatus" class="status-running">Running</span></div>
+          </div>
+        </div>
+        <div id="recordingTime" style="display: none; color: #ef4444; font-weight: 600;">Recording: 00:00</div>
+      </div>
+      
+      <div id="stream-container">
+        <img id="stream" src="/stream" alt="Live video feed">
+        <div id="overlay-box"></div> 
+        <div id="inner-box"></div> 
+      </div>
+      
+
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+      <!-- Pollination Card - UPDATED -->
+      <div class="card pollination-panel">
+        <h2>Pollination Status</h2>
+        <div class="stat-label">Pollination Cycle Count</div>
+        <div class="pollination-count" id="pollCount">0</div>
+        
+        <div class="pollination-progress">
+          <div class="pollination-progress-fill" id="pollProgress"></div>
+        </div>
+        
+        <!-- ADDED: Pollination timer display -->
+        <div style="margin-top: 20px; text-align: center;">
+          <div class="stat-label">Next Cycle In</div>
+          <div class="stat-value" id="pollTimer">40s</div>
+        </div>
+      </div>
+      
+      <!-- Calendar Card -->
+      <div class="card">
+        <h2>Activity Calendar</h2>
+        <div class="calendar-header">December 2024</div>
+        <div class="calendar-weekdays">
+          <div>Sun</div>
+          <div>Mon</div>
+          <div>Tue</div>
+          <div>Wed</div>
+          <div>Thu</div>
+          <div>Fri</div>
+          <div>Sat</div>
+        </div>
+        <div class="calendar">
+          <!-- Calendar days -->
+          <div class="calendar-day">1</div>
+          <div class="calendar-day">2</div>
+          <div class="calendar-day">3</div>
+          <div class="calendar-day">4</div>
+          <div class="calendar-day">5</div>
+          <div class="calendar-day">6</div>
+          <div class="calendar-day">7</div>
+          <div class="calendar-day">8</div>
+          <div class="calendar-day">9</div>
+          <div class="calendar-day marked">10</div>
+          <div class="calendar-day">11</div>
+          <div class="calendar-day">12</div>
+          <div class="calendar-day">13</div>
+          <div class="calendar-day">14</div>
+          <div class="calendar-day">15</div>
+          <div class="calendar-day">16</div>
+          <div class="calendar-day">17</div>
+          <div class="calendar-day">18</div>
+          <div class="calendar-day">19</div>
+          <div class="calendar-day">20</div>
+          <div class="calendar-day">21</div>
+          <div class="calendar-day">22</div>
+          <div class="calendar-day">23</div>
+          <div class="calendar-day">24</div>
+          <div class="calendar-day">25</div>
+          <div class="calendar-day">26</div>
+          <div class="calendar-day">27</div>
+          <div class="calendar-day">28</div>
+          <div class="calendar-day">29</div>
+          <div class="calendar-day">30</div>
+          <div class="calendar-day">31</div>
+        </div>
+      </div>
+      
+      <!-- ADDED: Storage Card -->
+      <div class="card storage-panel">
+        <h2>Storage Status</h2>
+        <div class="stat-value" id="storageValue">0.0 MB</div>
+        <div class="stat-label">Used / 4.0 MB Total</div>
+        
+        <div class="storage-bar-container">
+          <div class="storage-bar" id="storageBar"></div>
+        </div>
+        
+        <div style="margin-top: 20px; color: #94a3b8; font-size: 14px; text-align: center;">
+          <div> Recordings: <span id="recordingsCount">0</span></div>
+          <div>Images: <span id="imagesCount">0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Battery Card -->
+    <div class="card">
+      <h2>Battery Status</h2>
+      <div class="battery-container">
+        <div id="batteryBox">
+          <div id="batteryLevel"></div>
+          <div id="batteryCap"></div>
+        </div>
+        <div class="stat-value" id="batteryText">87%</div>
+        <div class="stat-label">Current Health</div>
+      </div>
+      <div style="margin-top: 20px;">
+        <div class="stat-label">Estimated Operation Time</div>
+        <div class="stat-value" id="estimatedTime">~6h 30m</div>
+      </div>
+    </div>
+    
+    <!-- System Status Card -->
+    <div class="card">
+      <h2>System Status</h2>
+      <div style="margin: 20px 0;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; padding-bottom:15px; border-bottom: 1px solid #334155;">
+          <span>Camera Feed</span>
+          <span class="status-running">Online</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; padding-bottom:15px; border-bottom: 1px solid #334155;">
+          <span>Network Connection</span>
+          <span class="status-running">Connected</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span>Data Logging</span>
+          <span class="status-running">Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div id="imagePreview"></div>
+
+<!-- Notification -->
+<div id="notification">
+  <button class="close-notification" onclick="hideNotification()">×</button>
+  <div id="notificationMessage"></div>
+</div>
+
+<script>
+  // ------------------ ANIMATION UTILITIES --------------------
+  function createFloatingParticles() {
+      const container = document.getElementById('stream-container');
+      if (!container) return;
+      
+      for (let i = 0; i < 15; i++) {
+          const particle = document.createElement('div');
+          particle.style.position = 'absolute';
+          particle.style.width = '4px';
+          particle.style.height = '4px';
+          particle.style.background = i % 3 === 0 ? '#3b82f6' : i % 3 === 1 ? '#10b981' : '#8b5cf6';
+          particle.style.borderRadius = '50%';
+          particle.style.opacity = '0.6';
+          particle.style.zIndex = '5';
+          particle.style.pointerEvents = 'none';
+          
+          const left = Math.random() * 100;
+          const top = Math.random() * 100;
+          particle.style.left = `${left}%`;
+          particle.style.top = `${top}%`;
+          
+          container.appendChild(particle);
+          animateParticle(particle);
+      }
+  }
+
+  function animateParticle(particle) {
+      const duration = 3 + Math.random() * 4;
+      const xMovement = (Math.random() - 0.5) * 100;
+      const yMovement = (Math.random() - 0.5) * 100;
+      
+      particle.animate([
+          { transform: 'translate(0, 0)', opacity: 0.6 },
+          { transform: `translate(${xMovement}px, ${yMovement}px)`, opacity: 0.1 }
+      ], {
+          duration: duration * 1000,
+          easing: 'ease-in-out',
+          iterations: Infinity,
+          direction: 'alternate'
+      });
+  }
+
+  function animateValue(element, start, end, duration) {
+      const startTime = performance.now();
+      const formatNumber = (num) => num.toFixed(1);
+      
+      function update(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+          const currentValue = start + (end - start) * easeOutQuart;
+          
+          element.textContent = formatNumber(currentValue);
+          
+          if (progress < 1) {
+              requestAnimationFrame(update);
+          }
+      }
+      
+      requestAnimationFrame(update);
+  }
+
+  function pulseElement(element, scale = 1.1) {
+      element.animate([
+          { transform: 'scale(1)' },
+          { transform: `scale(${scale})` },
+          { transform: 'scale(1)' }
+      ], {
+          duration: 300,
+          easing: 'ease-in-out'
+      });
+  }
+
+  function shimmerEffect(element) {
+      return element.animate([
+          { backgroundPosition: '-200% 0' },
+          { backgroundPosition: '200% 0' }
+      ], {
+          duration: 2000,
+          iterations: Infinity
+      });
+  }
+
+  // ------------------ NOTIFICATION SYSTEM --------------------
+  function showNotification(message, type = 'info') {
+      const notification = document.getElementById('notification');
+      const messageEl = document.getElementById('notificationMessage');
+      
+      messageEl.textContent = message;
+      
+      const colors = {
+          'info': '#3b82f6',
+          'success': '#10b981',
+          'error': '#ef4444',
+          'warning': '#f59e0b'
+      };
+      
+      notification.style.borderLeftColor = colors[type] || colors.info;
+      notification.style.display = 'block';
+      
+      notification.animate([
+          { transform: 'translateX(100%)', opacity: 0 },
+          { transform: 'translateX(0)', opacity: 1 }
+      ], {
+          duration: 300,
+          easing: 'ease-out'
+      });
+      
+      setTimeout(() => {
+          hideNotification();
+      }, 5000);
+  }
+
+  function hideNotification() {
+      const notification = document.getElementById('notification');
+      
+      notification.animate([
+          { transform: 'translateX(0)', opacity: 1 },
+          { transform: 'translateX(100%)', opacity: 0 }
+      ], {
+          duration: 300,
+          easing: 'ease-in'
+      }).onfinish = () => {
+          notification.style.display = 'none';
+      };
+  }
+
+  // ------------------ REAL-TIME BATTERY LOGIC --------------------
+  // Initialize battery from localStorage or start at 87%
+  let battery = parseFloat(localStorage.getItem("battery"));
+  let lastBatteryUpdate = parseInt(localStorage.getItem("lastBatteryUpdate")) || Date.now();
+
+  // Initialize battery if not exists
+  if (!battery || isNaN(battery) || battery < 0 || battery > 100) {
+      battery = 87;
+      localStorage.setItem("battery", battery.toFixed(2));
+      localStorage.setItem("lastBatteryUpdate", Date.now());
+  } else {
+      // Calculate battery drain since last update
+      const now = Date.now();
+      const minutesPassed = Math.floor((now - lastBatteryUpdate) / (1000 * 60));
+      
+      if (minutesPassed > 0) {
+          const batteryDecrease = minutesPassed * 0.5;
+          battery = Math.max(0, battery - batteryDecrease);
+          battery = Math.min(100, battery);
+          
+          localStorage.setItem("battery", battery.toFixed(2));
+          localStorage.setItem("lastBatteryUpdate", now);
+      }
+  }
+
+  function updateBatteryUI() {
+      const batteryTextElement = document.getElementById("batteryText");
+      const batteryLevelElement = document.getElementById("batteryLevel");
+      
+      if (!batteryTextElement || !batteryLevelElement) return;
+      
+      const batteryText = battery.toFixed(1) + "%";
+      
+      // Animate battery text
+      const oldValue = parseFloat(batteryTextElement.textContent) || 87;
+      const newValue = parseFloat(battery);
+      
+      if (batteryTextElement.textContent !== batteryText) {
+          animateValue(batteryTextElement, oldValue, newValue, 500);
+      }
+      
+      // Animate battery level width
+      const currentWidth = parseFloat(batteryLevelElement.style.width) || 87;
+      const targetWidth = battery;
+      
+      batteryLevelElement.animate([
+          { width: `${currentWidth}%` },
+          { width: `${targetWidth}%` }
+      ], {
+          duration: 800,
+          easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+          fill: 'forwards'
+      });
+      
+      // Update battery color based on level
+      let batteryColor;
+      if (battery > 70) {
+          batteryColor = "#10b981";
+      } else if (battery > 30) {
+          batteryColor = "#fbbf24";
+      } else {
+          batteryColor = "#ef4444";
+      }
+      
+      batteryLevelElement.style.background = batteryColor;
+      
+      // Update estimated time
+      const estimatedHours = (battery / 100 * 8);
+      const hours = Math.floor(estimatedHours);
+      const minutes = Math.round((estimatedHours - hours) * 60);
+      document.getElementById("estimatedTime").innerText = `~${hours}h ${minutes}m`;
+  }
+
+  // Update battery every 30 seconds
+  setInterval(() => {
+      const oldBattery = battery;
+      battery = Math.max(0, battery - 0.25);
+      battery = Math.min(100, battery);
+      
+      localStorage.setItem("battery", battery.toFixed(2));
+      localStorage.setItem("lastBatteryUpdate", Date.now());
+      updateBatteryUI();
+      
+      // Show notifications
+      if (battery < 30 && oldBattery >= 30) {
+          showNotification(`Battery at ${battery.toFixed(1)}% - Consider recharging soon`, 'warning');
+          const batteryBox = document.getElementById('batteryBox');
+          if (batteryBox) pulseElement(batteryBox, 1.05);
+      }
+      
+      if (battery < 15 && oldBattery >= 15) {
+          showNotification(`Battery critical at ${battery.toFixed(1)}% - Please recharge immediately`, 'error');
+          const batteryBox = document.getElementById('batteryBox');
+          if (batteryBox) {
+              batteryBox.animate([
+                  { transform: 'scale(1)' },
+                  { transform: 'scale(1.1)' },
+                  { transform: 'scale(1)' }
+              ], {
+                  duration: 500,
+                  iterations: 3
+              });
+          }
+      }
+  }, 30000);
+
+  // ------------------ REAL-TIME POLLINATION LOGIC --------------------
+  // Initialize pollination data
+  let pollCount = 0;
+  let pollTimer = 40;
+
+  // Update UI on load
+  document.getElementById("pollCount").innerText = pollCount;
+  document.getElementById("pollTimer").innerText = pollTimer + "s";
+
+  // Update pollination progress bar
+  function updatePollinationProgress() {
+      const maxPollination = 2;
+      const progress = (pollCount / maxPollination) * 100;
+      const progressElement = document.getElementById("pollProgress");
+      
+      if (progressElement) {
+          progressElement.animate([
+              { width: progressElement.style.width || '0%' },
+              { width: `${progress}%` }
+          ], {
+              duration: 800,
+              easing: 'ease-out',
+              fill: 'forwards'
+          });
+      }
+  }
+
+  updatePollinationProgress();
+
+  // Pollination timer
+  const pollinationInterval = setInterval(() => {
+      if (pollCount >= 2) {
+          clearInterval(pollinationInterval);
+          document.getElementById("pollTimer").textContent = "Complete";
+          return;
+      }
+
+      const pollTimerElement = document.getElementById("pollTimer");
+      if (!pollTimerElement) return;
+      
+      pollTimer--;
+      pollTimerElement.textContent = pollTimer + "s";
+      
+      if (pollTimer > 0) {
+          pulseElement(pollTimerElement, 1.05);
+      }
+
+      // When timer reaches 0
+      if (pollTimer <= 0) {
+          pollCount++;
+          const pollCountElement = document.getElementById("pollCount");
+          pollCountElement.textContent = pollCount;
+          
+          // Animation for count increase
+          pollCountElement.animate([
+              { transform: 'scale(1)', color: '#10b981' },
+              { transform: 'scale(1.3)', color: '#3b82f6' },
+              { transform: 'scale(1)', color: '#10b981' }
+          ], {
+              duration: 600,
+              easing: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)'
+          });
+          
+          updatePollinationProgress();
+          showNotification(`Pollination cycle ${pollCount} completed successfully`, 'success');
+          
+          // Animate calendar
+          const calendarDays = document.querySelectorAll('.calendar-day');
+          if (calendarDays[9 + pollCount]) {
+              calendarDays[9 + pollCount].animate([
+                  { transform: 'scale(1)', backgroundColor: '#334155' },
+                  { transform: 'scale(1.2)', backgroundColor: '#3b82f6' },
+                  { transform: 'scale(1)', backgroundColor: '#3b82f6' }
+              ], {
+                  duration: 800,
+                  easing: 'ease-out'
+              });
+          }
+
+          // Reset timer for next cycle
+          if (pollCount < 2) {
+              pollTimer = 40;
+              pollTimerElement.textContent = pollTimer + "s";
+          } else {
+              document.getElementById("pollTimer").textContent = "Complete";
+              showNotification('Maximum pollination cycles (2) completed for this session', 'info');
+          }
+      }
+  }, 1000);
+
+  // ------------------ RECORDING SYSTEM --------------------
+  let isRecording = false;
+  let recordingStartTime = null;
+  let recordingTimer = null;
+
+  // Initialize recording controls
+  document.getElementById('startRecording').addEventListener('click', startRecording);
+  document.getElementById('stopRecording').addEventListener('click', stopRecording);
+  document.getElementById('captureImage').addEventListener('click', captureImage);
+  document.getElementById('viewRecordings').addEventListener('click', viewRecordings);
+  document.getElementById('viewImages').addEventListener('click', viewImages);
+
+  // Button hover animations
+  document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('mouseenter', () => {
+          button.animate([
+              { transform: 'translateY(0)' },
+              { transform: 'translateY(-2px)' }
+          ], {
+              duration: 200,
+              easing: 'ease-out',
+              fill: 'forwards'
+          });
+      });
+      
+      button.addEventListener('mouseleave', () => {
+          button.animate([
+              { transform: 'translateY(-2px)' },
+              { transform: 'translateY(0)' }
+          ], {
+              duration: 200,
+              easing: 'ease-in',
+              fill: 'forwards'
+          });
+      });
+  });
+
+  function startRecording() {
+      try {
+          showNotification('Starting recording...', 'info');
+          
+          isRecording = true;
+          recordingStartTime = new Date();
+          
+          const startBtn = document.getElementById('startRecording');
+          startBtn.animate([
+              { transform: 'scale(1)' },
+              { transform: 'scale(0.95)' },
+              { transform: 'scale(1)' }
+          ], {
+              duration: 300,
+              easing: 'ease-out'
+          });
+          
+          // Update UI
+          document.getElementById('recordingDot').style.display = 'block';
+          document.getElementById('recordingTime').style.display = 'block';
+          document.getElementById('startRecording').disabled = true;
+          document.getElementById('stopRecording').disabled = false;
+          document.getElementById('recStatus').textContent = 'Recording';
+          document.getElementById('recStatus').className = 'status-stopped';
+          
+          // Start recording timer
+          recordingTimer = setInterval(updateRecordingTime, 1000);
+          
+          showNotification('Recording started successfully', 'success');
+          
+      } catch (error) {
+          console.error('Error starting recording:', error);
+          showNotification('Failed to start recording: ' + error.message, 'error');
+      }
+  }
+
+  function stopRecording() {
+      if (!isRecording) return;
+      
+      isRecording = false;
+      clearInterval(recordingTimer);
+      
+      // Update UI
+      document.getElementById('recordingDot').style.display = 'none';
+      document.getElementById('recordingTime').style.display = 'none';
+      document.getElementById('startRecording').disabled = false;
+      document.getElementById('stopRecording').disabled = true;
+      document.getElementById('recStatus').textContent = 'Running';
+      document.getElementById('recStatus').className = 'status-running';
+      
+      // Save recording to local storage
+      const recordingDuration = Math.floor((new Date() - recordingStartTime) / 1000);
+      const fileName = `recording_${new Date().toISOString().replace(/[:.]/g, '-')}.mp4`;
+      const fileSize = Math.round(recordingDuration * 0.05 * 100) / 100;
+      
+      const recordings = JSON.parse(localStorage.getItem('recordings') || '[]');
+      recordings.push({
+          name: fileName,
+          size: fileSize,
+          date: new Date().toISOString(),
+          duration: recordingDuration
+      });
+      localStorage.setItem('recordings', JSON.stringify(recordings));
+      
+      showNotification(`Recording saved: ${fileName} (${formatTime(recordingDuration)})`, 'success');
+      updateStorageDisplay();
+  }
+
+  function updateRecordingTime() {
+      if (!recordingStartTime) return;
+      
+      const elapsed = Math.floor((new Date() - recordingStartTime) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      const timeElement = document.getElementById('recordingTime');
+      timeElement.textContent = `Recording: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  // ------------------ IMAGE CAPTURE --------------------
+  function captureImage() {
+      const captureBtn = document.getElementById('captureImage');
+      
+      // Animate button press
+      captureBtn.animate([
+          { transform: 'scale(1)' },
+          { transform: 'scale(0.9)' },
+          { transform: 'scale(1)' }
+      ], {
+          duration: 400,
+          easing: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)'
+      });
+      
+      // Flash effect
+      document.body.animate([
+          { backgroundColor: '#0f172a' },
+          { backgroundColor: '#ffffff' },
+          { backgroundColor: '#0f172a' }
+      ], {
+          duration: 300,
+          easing: 'ease-out'
+      });
+      
+      const fileName = `image_${new Date().toISOString().replace(/[:.]/g, '-')}.jpg`;
+      const fileSize = 0.8;
+      
+      // Store image
+      const images = JSON.parse(localStorage.getItem('images') || '[]');
+      images.push({
+          name: fileName,
+          size: fileSize,
+          date: new Date().toISOString()
+      });
+      localStorage.setItem('images', JSON.stringify(images));
+      
+      // Show preview
+      const preview = document.getElementById('imagePreview');
+      preview.style.display = 'block';
+      preview.innerHTML = `<img src="/stream?t=${Date.now()}" alt="Captured Image">`;
+      
+      preview.animate([
+          { opacity: 0, transform: 'scale(0.8)' },
+          { opacity: 1, transform: 'scale(1)' }
+      ], {
+          duration: 400,
+          easing: 'ease-out'
+      });
+      
+      showNotification(`Image captured: ${fileName}`, 'success');
+      
+      // Hide preview after 5 seconds
+      setTimeout(() => {
+          preview.animate([
+              { opacity: 1, transform: 'scale(1)' },
+              { opacity: 0, transform: 'scale(0.8)' }
+          ], {
+              duration: 300,
+              easing: 'ease-in'
+          }).onfinish = () => {
+              preview.style.display = 'none';
+          };
+      }, 5000);
+      
+      updateStorageDisplay();
+  }
+
+  // ------------------ STORAGE MANAGEMENT --------------------
+  function updateStorageDisplay() {
+      const recordings = JSON.parse(localStorage.getItem('recordings') || '[]');
+      const images = JSON.parse(localStorage.getItem('images') || '[]');
+      
+      let totalSize = 0;
+      recordings.forEach(r => totalSize += r.size);
+      images.forEach(i => totalSize += i.size);
+      
+      // Update storage bar
+      const storagePercentage = Math.min(100, (totalSize / 4) * 100);
+      const storageBar = document.getElementById('storageBar');
+      
+      if (storageBar) {
+          const currentWidth = parseFloat(storageBar.style.width) || 0;
+          storageBar.animate([
+              { width: `${currentWidth}%` },
+              { width: `${storagePercentage}%` }
+          ], {
+              duration: 800,
+              easing: 'ease-out',
+              fill: 'forwards'
+          });
+      }
+      
+      // Update storage value
+      const storageValue = document.getElementById('storageValue');
+      if (storageValue) {
+          storageValue.textContent = totalSize.toFixed(1) + ' MB';
+      }
+      
+      // Update counts
+      document.getElementById('recordingsCount').textContent = recordings.length;
+      document.getElementById('imagesCount').textContent = images.length;
+      
+      // Show warning if storage is getting full
+      if (totalSize > 3.5) {
+          showNotification('Storage almost full. Consider cleaning up old files.', 'warning');
+          const storagePanel = document.querySelector('.storage-panel');
+          pulseElement(storagePanel, 1.02);
+      }
+  }
+
+  function viewRecordings() {
+      const recordings = JSON.parse(localStorage.getItem('recordings') || '[]');
+      if (recordings.length === 0) {
+          showNotification('No recordings available', 'info');
+          return;
+      }
+      
+      let message = 'Recent Recordings:\n\n';
+      recordings.slice(-5).reverse().forEach((rec, i) => {
+          const date = new Date(rec.date);
+          message += `${i+1}. ${rec.name}\n`;
+          message += `   Duration: ${formatTime(rec.duration)}, Size: ${rec.size} MB\n`;
+          message += `   Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}\n\n`;
+      });
+      
+      alert(message);
+  }
+
+  function viewImages() {
+      const images = JSON.parse(localStorage.getItem('images') || '[]');
+      if (images.length === 0) {
+          showNotification('No images available', 'info');
+          return;
+      }
+      
+      let message = 'Recent Images:\n\n';
+      images.slice(-5).reverse().forEach((img, i) => {
+          const date = new Date(img.date);
+          message += `${i+1}. ${img.name}\n`;
+          message += `   Size: ${img.size} MB\n`;
+          message += `   Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}\n\n`;
+      });
+      
+      alert(message);
+  }
+
+  // ------------------ INITIALIZATION --------------------
+  window.addEventListener('DOMContentLoaded', function() {
+      // Initialize battery UI
+      updateBatteryUI();
+      
+      // Initialize storage display
+      updateStorageDisplay();
+      
+      // Initialize storage bar
+      const storageBar = document.getElementById('storageBar');
+      if (storageBar) {
+          storageBar.style.width = '0%';
+      }
+      
+      // Stream refresh
+      setInterval(() => {
+          const streamImg = document.getElementById('stream');
+          if (streamImg && streamImg.src.includes('/stream')) {
+              streamImg.src = '/stream?t=' + Date.now();
+          }
+      }, 1000);
+      
+      // Entrance animations
+      document.querySelectorAll('.card').forEach((card, index) => {
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(20px)';
+          
+          setTimeout(() => {
+              card.animate([
+                  { opacity: 0, transform: 'translateY(20px)' },
+                  { opacity: 1, transform: 'translateY(0)' }
+              ], {
+                  duration: 500,
+                  easing: 'ease-out',
+                  fill: 'forwards',
+                  delay: index * 100
+              });
+          }, 300);
+      });
+      
+      // Animate header
+      const header = document.querySelector('header');
+      header.animate([
+          { opacity: 0, transform: 'translateY(-20px)' },
+          { opacity: 1, transform: 'translateY(0)' }
+      ], {
+          duration: 600,
+          easing: 'ease-out'
+      });
+      
+      // Create floating particles
+      createFloatingParticles();
+      
+      console.log('Smart Bloom Monitoring System initialized!');
+  });
+</script>
+</body>
+</html>
